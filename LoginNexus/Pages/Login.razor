@@ -1,0 +1,66 @@
+@page "/login"
+@using LoginNexus.Services
+@using LoginNexus.Models
+@inject AuthService AuthService
+@inject NavigationManager Nav
+
+<div class="login-container">
+    <div class="login-card">
+        <h3>Nexus Acadêmico</h3>
+        <p>Acesse seu ecossistema de aprendizagem</p>
+
+        <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label>E-mail Institucional</label>
+                <InputText @bind-Value="loginModel.Email"
+                           class="form-control"
+                           placeholder="usuario@nexus.edu" />
+            </div>
+
+            <div class="form-group">
+                <label>Senha</label>
+                <InputText @bind-Value="loginModel.Password"
+                           type="password"
+                           class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Entrar no Portal
+            </button>
+        </EditForm>
+
+        @if (errorMessage != null)
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+    </div>
+</div>
+
+@code {
+    private LoginRequest loginModel = new LoginRequest();
+    private string? errorMessage;
+
+    private void HandleLogin()
+    {
+        errorMessage = null;
+
+        var user = AuthService.Authenticate(loginModel.Email, loginModel.Password);
+
+        if (user != null)
+        {
+            Nav.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "E-mail ou senha inválidos. Tente novamente.";
+        }
+    }
+
+    public class LoginRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
